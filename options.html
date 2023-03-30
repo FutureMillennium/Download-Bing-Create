@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+body {
+	font-family: sans-serif;
+	font-size: 16px;
+	line-height: 1.5;
+	margin: 30px;
+	padding: 0;
+}
+.formlike {
+	border: 1px solid #e2e2e2;
+	border-radius: 12px;
+	padding: 0 15px;
+	background: #f6f6f6;
+	margin: 15px 0;
+	max-width: 600px;
+	position: relative;
+}
+input {
+	font-size: 16px;
+	line-height: 1.5;
+	padding: 5px 10px;
+	border: 1px solid #ccc;
+	border-radius: 4px;
+	width: 100%;
+	box-sizing: border-box;
+}
+textarea {
+	font-size: 16px;
+	line-height: 1.5;
+	padding: 5px 10px;
+	border: 1px solid #ccc;
+	border-radius: 4px;
+	width: 100%;
+	box-sizing: border-box;
+}
+button {
+	font-size: 16px;
+	line-height: 1.5;
+	padding: 5px 10px;
+	border: 1px solid #3c2480;
+	border-radius: 4px;
+	background: #6446b8;
+	color: #fff;
+}
+</style>
+<title>Download Bing Create extension</title>
+</head>
+<body>
+
+<h1>Download Bing Create extension</h1>
+
+<form id="findHashForm" class="formlike">
+<p><label>Find prompt by hash: <input type="text" id="hashInput" value="" placeholder="Hash (e.g. fa904a1c8b4edf79)" /></label></p>
+
+<p><textarea id="promptInput" rows="10" cols="50" placeholder="(Prompt)"></textarea></p>
+</form>
+
+<div class="formlike">
+<p>Export hashes-prompts: <button id="exportHashesButton">Export hashes-prompts as .CSV</button></p>
+</div>
+
+<form id="importHashesForm" class="formlike">
+<p><label>Import hashes-prompts: <input type="file" id="importHashesFile" /></label>
+<p><button id="importHashesButton">Import hashes-prompts .CSV</button></p>
+</form>
+
+<script src="options.js"></script>
+</body>
+</html>
