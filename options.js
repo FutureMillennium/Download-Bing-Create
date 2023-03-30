@@ -2,9 +2,10 @@
 
 // find hash in chrome.storage on findHashForm submit
 document.querySelector('#findHashForm').addEventListener('submit', function(e) {
-	chrome.storage.sync.get('hashes', function(data) {
-		let hashes = data.hashes || {};
-		let hash = document.querySelector('#hashInput').value;
+	let hash = document.querySelector('#hashInput').value;
+	let key = 'hashes-' + hash.substring(0, 2);
+	chrome.storage.local.get(key, function(data) {
+		let hashes = data[key] || {};
 		if (hash in hashes) {
 			document.querySelector('#promptInput').value = hashes[hash];
 		} else {
@@ -15,18 +16,23 @@ document.querySelector('#findHashForm').addEventListener('submit', function(e) {
 	return false;
 });
 
-// exportHashesButton click
+// export all hash-prompt pairs as CSV
 document.querySelector('#exportHashesButton').addEventListener('click', function(e) {
-	chrome.storage.sync.get('hashes', function(data) {
-		let hashes = data.hashes || {};
+	chrome.storage.local.get(null, function(data) {
 		let csv = '';
-		for (let hash in hashes) {
-			csv += hash + ',"' + hashes[hash] + '"\n';
+		for (let key in data) {
+			if (key.startsWith('hashes-')) {
+				let hashes = data[key];
+				for (let hash in hashes) {
+					// replace double quotes with two double quotes
+					let prompt = hashes[hash].replace(/"/g, '""');
+					csv += hash + ',"' + prompt + '"\n';
+				}
+			}
 		}
-		let blob = new Blob([csv], {type: 'text/csv'});
-		let url = URL.createObjectURL(blob);
+		let blob = new Blob([csv], {type: 'text/csv;charset=utf-8'});
 		chrome.downloads.download({
-			url: url,
+			url: URL.createObjectURL(blob),
 			filename: 'hashes.csv'
 		});
 	});
@@ -34,7 +40,7 @@ document.querySelector('#exportHashesButton').addEventListener('click', function
 	return false;
 });
 
-// importHashesForm
+// import hash-prompt pairs from CSV
 document.querySelector('#importHashesForm').addEventListener('submit', function(e) {
 	let file = document.querySelector('#importHashesFile').files[0];
 	let reader = new FileReader();
@@ -42,10 +48,39 @@ document.querySelector('#importHashesForm').addEventListener('submit', function(
 		let hashes = {};
 		let lines = reader.result.split('\n');
 		for (let i = 0; i < lines.length; i++) {
-			let line = lines[i].split(',');
-			hashes[line[0]] = line[1];
+			let line = lines[i];
+			if (line.length < 17) { continue; }
+			let firstCommaIndex = line.indexOf(',');
+			if (firstCommaIndex === -1) { continue; }
+			let hash = line.substring(0, firstCommaIndex);
+			let prompt = line.substring(firstCommaIndex + 1);
+			if (prompt.startsWith('"') && prompt.endsWith('"')) {
+				prompt = prompt.substring(1, prompt.length - 1);
+			}
+			let key = 'hashes-' + hash.substring(0, 2);
+			if (!(key in hashes)) {
+				hashes[key] = {};
+			}
+			hashes[key][hash] = prompt;
 		}
-		chrome.storage.sync.set({hashes: hashes});
+		// merge with existing hashes
+		chrome.storage.local.get(null, function(data) {
+			for (let key in data) {
+				if (key.startsWith('hashes-')) {
+					let dataHashes = data[key];
+					if (!(key in hashes)) {
+						hashes[key] = {};
+					}
+					for (let hash in dataHashes) {
+						// don't overwrite imported hashes
+						if (!(hash in hashes[key])) {
+							hashes[key][hash] = dataHashes[hash];
+						}
+					}
+				}
+			}
+			chrome.storage.local.set(hashes);
+		});
 	};
 	reader.readAsText(file);
 	e.preventDefault();

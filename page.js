@@ -16,21 +16,25 @@
 		imgs = document.querySelectorAll('.giric img');
 	}
 	let prompt = document.querySelector('#sb_form_q').value;
-	let hash = (await DigestMessage(prompt)).substring(0, 16);
+	let hash = '';
 
-	// add hash-prompt pair to chrome.storage if it doesn't exist
+	// add hash-prompt pair to chrome.storage.local if it doesn't exist
 	if (prompt.length > 220) {
-		chrome.storage.sync.get('hashes', function(data) {
+		hash = (await DigestMessage(prompt)).substring(0, 16);
+		let key = 'hashes-' + hash.substring(0, 2);
+		chrome.storage.local.get(key, function(data) {
 			// handle errors
 			if (chrome.runtime.lastError) {
 				console.error(chrome.runtime.lastError);
 				return;
 			}
 
-			let hashes = data.hashes || {};
+			let hashes = data[key] || {};
 			if (!(hash in hashes)) {
 				hashes[hash] = prompt;
-				chrome.storage.sync.set({hashes: hashes});
+				let obj = {};
+				obj[key] = hashes;
+				chrome.storage.local.set(obj);
 			}
 		});
 	}
