@@ -45,6 +45,7 @@ document.querySelector('#importHashesForm').addEventListener('submit', function(
 	let file = document.querySelector('#importHashesFile').files[0];
 	let reader = new FileReader();
 	reader.onload = function() {
+		let numImported = 0;
 		let hashes = {};
 		let lines = reader.result.split('\n');
 		for (let i = 0; i < lines.length; i++) {
@@ -62,6 +63,7 @@ document.querySelector('#importHashesForm').addEventListener('submit', function(
 				hashes[key] = {};
 			}
 			hashes[key][hash] = prompt;
+			numImported++;
 		}
 		// merge with existing hashes
 		chrome.storage.local.get(null, function(data) {
@@ -81,6 +83,7 @@ document.querySelector('#importHashesForm').addEventListener('submit', function(
 			}
 			chrome.storage.local.set(hashes);
 		});
+		window.alert(numImported + ' hashes successfully imported.');
 	};
 	reader.readAsText(file);
 	e.preventDefault();

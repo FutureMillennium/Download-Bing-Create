@@ -47,6 +47,13 @@ button {
 	border-radius: 4px;
 	background: #6446b8;
 	color: #fff;
+	cursor: pointer;
+}
+button:hover {
+	background: #3c2480;
+}
+button:active {
+	background: #8869db;
 }
 </style>
 <title>Download Bing Create extension</title>
@@ -66,7 +73,7 @@ button {
 </div>
 
 <form id="importHashesForm" class="formlike">
-<p><label>Import hashes-prompts: <input type="file" id="importHashesFile" /></label>
+<p><label>Import hashes-prompts .CSV file: <input type="file" id="importHashesFile" /></label>
 <p><button id="importHashesButton">Import hashes-prompts .CSV</button></p>
 </form>
 
