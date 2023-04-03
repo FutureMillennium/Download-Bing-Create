@@ -6,8 +6,15 @@ chrome.browserAction.onClicked.addListener(function(tab) {
 
  // get message from page.js
 chrome.runtime.onMessage.addListener(function(obj) {
+
+	// replace invalid characters in filename
+	let filename = obj.filename.replace(/[\\/:*?"<>|]/g, '_');
 	chrome.downloads.download({
 		url: obj.url,
-		filename: obj.filename
+		filename: filename,
 	});
+	
+	if (chrome.runtime.lastError) {
+		console.error(chrome.runtime.lastError);
+	}
 });
